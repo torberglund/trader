@@ -13,7 +13,7 @@ def main():
     trade_parser.add_argument(
         "--strategy",
         required=True,
-        choices=["ma", "rsi_bb", "breakout", "ema"],
+        choices=["ma", "rsi_bb", "breakout", "ema", "combo"],
     )
     trade_parser.add_argument("--symbol", required=True)
     trade_parser.add_argument("--amount", required=True, type=float)

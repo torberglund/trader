@@ -1,15 +1,18 @@
 # Trading Bot
 
 This repository contains a minimal command line trading bot that connects to the
-Alpaca API. It provides four simple trading strategies:
+Alpaca API. It provides multiple trading strategies and a combined strategy that
+aggregates their signals:
 
 - Moving Average Crossover (`ma`)
 - RSI with Bollinger Bands (`rsi_bb`)
 - Intraday High/Low Breakout (`breakout`)
 - EMA Pullback (`ema`)
+- Combined strategy using all of the above (`combo`)
 
 The bot is intended for educational use. It defaults to Alpaca's paper trading
-endpoint so you can paper trade safely. You must set your API credentials in the
+endpoint so you can paper trade safely. Each order will print suggested stop
+loss and take-profit levels when available. You must set your API credentials in the
 environment:
 
 ```bash
@@ -23,6 +26,9 @@ Run the bot with the desired command:
 ```bash
 # Execute a strategy with a symbol and amount of capital (USD)
 python main.py trade --strategy ma --symbol BTCUSD --amount 100
+
+# Use the combined strategy
+python main.py trade --strategy combo --symbol BTCUSD --amount 100
 
 # Show open positions
 python main.py positions

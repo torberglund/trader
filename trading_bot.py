@@ -6,6 +6,8 @@ from strategies import (
     rsi_bollinger_signal,
     breakout_signal,
     ema_pullback_signal,
+    combined_signal,
+    TradeSignal,
 )
 
 
@@ -65,13 +67,19 @@ class TradingBot:
             signal = breakout_signal(df)
         elif strategy == "ema":
             signal = ema_pullback_signal(df)
+        elif strategy == "combo":
+            signal = combined_signal(df)
         else:
             print(f"Unknown strategy {strategy}")
             return
         if signal:
             price = df["close"].iloc[-1]
             qty = capital / price
-            side = "buy" if signal == "buy" else "sell"
+            side = "buy" if signal.action == "buy" else "sell"
             self.place_order(symbol, qty, side)
+            if signal.stop:
+                print(f"Suggested stop loss: {signal.stop:.2f}")
+            if signal.target:
+                print(f"Suggested take profit: {signal.target:.2f}")
         else:
             print("No trading signal generated")
