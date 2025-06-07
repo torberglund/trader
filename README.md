@@ -1,8 +1,9 @@
 # Trading Bot
 
 This repository contains a minimal command line trading bot that connects to the
-Alpaca API. It provides multiple trading strategies and a combined strategy that
-aggregates their signals:
+Alpaca API. It is ready to trade live with your account once you provide API
+credentials. The bot offers multiple trading strategies and a combined strategy
+that aggregates their signals:
 
 - Moving Average Crossover (`ma`)
 - RSI with Bollinger Bands (`rsi_bb`)
@@ -10,15 +11,15 @@ aggregates their signals:
 - EMA Pullback (`ema`)
 - Combined strategy using all of the above (`combo`)
 
-The bot is intended for educational use. It defaults to Alpaca's paper trading
-endpoint so you can paper trade safely. Each order will print suggested stop
+The bot is intended for educational use. It now defaults to Alpaca's **live**
+trading endpoint so real orders are placed. Each order will print suggested stop
 loss and take-profit levels when available. You must set your API credentials in the
 environment:
 
 ```bash
 export APCA_API_KEY_ID="<your key>"
 export APCA_API_SECRET_KEY="<your secret>"
-# optional: export APCA_API_BASE_URL="https://paper-api.alpaca.markets"
+# optional: export APCA_API_BASE_URL="https://paper-api.alpaca.markets"  # use this for paper trading
 ```
 
 Run the bot with the desired command:
@@ -66,11 +67,12 @@ any commands:
 ```bash
 export APCA_API_KEY_ID="<your key>"
 export APCA_API_SECRET_KEY="<your secret>"
-export APCA_API_BASE_URL="https://paper-api.alpaca.markets"  # optional
+# optional: set APCA_API_BASE_URL="https://paper-api.alpaca.markets" to paper trade
 ```
 
-By default the bot uses Alpaca's paper trading endpoint, which allows you to
-test strategies without risking real money.
+By default the bot uses Alpaca's **live** trading endpoint so trades are sent to
+your real account. Set `APCA_API_BASE_URL` to `https://paper-api.alpaca.markets`
+if you want to run in paper mode instead.
 
 ### Command Reference
 
@@ -108,7 +110,9 @@ python main.py close --symbol BTCUSD
 
 ### Tips
 
-- Start with paper trading to familiarise yourself with order execution.
+- If you prefer to test without risking money, set
+  `APCA_API_BASE_URL=https://paper-api.alpaca.markets` to use Alpaca's paper
+  environment.
 - You can tweak strategy parameters in `strategies.py` to experiment with
   different indicators or time frames.
 - Review Alpaca's documentation for more API features and order options.

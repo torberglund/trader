@@ -74,43 +74,69 @@ def rsi_bollinger_signal(
 
 
 def breakout_signal(df: pd.DataFrame, buffer: float = 0.001) -> TradeSignal | None:
+    """Breakout of prior day's range with ATR-based stops."""
+
     if len(df) < 2:
         return None
+
     df = df.copy()
     df["date"] = df.index.date
-    today = df.iloc[-1]
-    prev_day = df[df["date"] < today["date"]].iloc[-1]
-    high_level = prev_day["high"]
-    low_level = prev_day["low"]
+    today_date = df["date"].iloc[-1]
+    prev_df = df[df["date"] < today_date]
+    if prev_df.empty:
+        return None
+
+    prev_high = prev_df["high"].max()
+    prev_low = prev_df["low"].min()
+
+    today_df = df[df["date"] == today_date]
+    current_high = today_df["high"].max()
+    current_low = today_df["low"].min()
+
+    high_level = max(prev_high, current_high)
+    low_level = min(prev_low, current_low)
+
     atr_val = atr(df).iloc[-1]
-    if today["close"] > high_level * (1 + buffer):
-        stop = today["close"] - 1.5 * atr_val
-        target = today["close"] + 2 * atr_val
+    last_close = df["close"].iloc[-1]
+
+    if last_close > high_level * (1 + buffer):
+        stop = last_close - 1.5 * atr_val
+        target = last_close + 2 * atr_val
         return TradeSignal("buy", stop=stop, target=target)
-    if today["close"] < low_level * (1 - buffer):
-        stop = today["close"] + 1.5 * atr_val
-        target = today["close"] - 2 * atr_val
+
+    if last_close < low_level * (1 - buffer):
+        stop = last_close + 1.5 * atr_val
+        target = last_close - 2 * atr_val
         return TradeSignal("sell", stop=stop, target=target)
+
     return None
 
 
-def ema_pullback_signal(df: pd.DataFrame, period: int = 20) -> TradeSignal | None:
+def ema_pullback_signal(
+    df: pd.DataFrame, period: int = 20, trend_bars: int = 3
+) -> TradeSignal | None:
+    """Trend-continuation pullback entry using a single EMA."""
+
     df["ema"] = df["close"].ewm(span=period, adjust=False).mean()
-    if len(df) < period + 2:
+    if len(df) < period + trend_bars + 1:
         return None
+
     atr_val = atr(df).iloc[-1]
-    if (
-        df["close"].iloc[-1] > df["ema"].iloc[-1]
-        and df["close"].iloc[-2] <= df["ema"].iloc[-2]
-    ):
-        stop = df["ema"].iloc[-1] - atr_val
-        return TradeSignal("buy", stop=stop)
-    if (
-        df["close"].iloc[-1] < df["ema"].iloc[-1]
-        and df["close"].iloc[-2] >= df["ema"].iloc[-2]
-    ):
-        stop = df["ema"].iloc[-1] + atr_val
-        return TradeSignal("sell", stop=stop)
+
+    # Determine if market has been above or below EMA for the last few bars
+    recent = df.iloc[-(trend_bars + 1) : -1]
+    if (recent["close"] > recent["ema"]).all():
+        last = df.iloc[-1]
+        if last["close"] > last["ema"] and last["low"] <= last["ema"]:
+            stop = last["ema"] - atr_val
+            return TradeSignal("buy", stop=stop)
+
+    if (recent["close"] < recent["ema"]).all():
+        last = df.iloc[-1]
+        if last["close"] < last["ema"] and last["high"] >= last["ema"]:
+            stop = last["ema"] + atr_val
+            return TradeSignal("sell", stop=stop)
+
     return None
 
 

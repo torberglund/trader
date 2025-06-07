@@ -28,7 +28,7 @@ def main():
     api_key = os.getenv("APCA_API_KEY_ID")
     secret_key = os.getenv("APCA_API_SECRET_KEY")
     base_url = os.getenv(
-        "APCA_API_BASE_URL", "https://paper-api.alpaca.markets"
+        "APCA_API_BASE_URL", "https://api.alpaca.markets"
     )
 
     if not api_key or not secret_key:

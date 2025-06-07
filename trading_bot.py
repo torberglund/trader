@@ -18,7 +18,7 @@ class TradingBot:
         self,
         api_key: str,
         secret_key: str,
-        base_url: str = "https://paper-api.alpaca.markets",
+        base_url: str = "https://api.alpaca.markets",
     ):
         self.api = REST(api_key, secret_key, base_url, api_version="v2")
         self.positions = {}
